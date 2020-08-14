@@ -1,5 +1,6 @@
 {
   "name": "react-snake-game",
+  "homepage":"https://facadecrimson.github.io/Experimental/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
