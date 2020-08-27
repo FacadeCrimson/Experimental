@@ -1,5 +1,5 @@
 import express from "express";
-import compression from "compression";  // compresses requests
+import compression from "compression";
 import session from "express-session";
 import bodyParser from "body-parser";
 import lusca from "lusca";
@@ -9,7 +9,9 @@ import path from "path";
 import mongoose from "mongoose";
 import passport from "passport";
 import bluebird from "bluebird";
-import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
+import cors from "cors";
+import redis from "redis";
+import { MONGODB_URI, SESSION_SECRET, FRONTEND, RDS_PORT, RDS_HOST, RDS_PWD } from "./util/secrets";
 
 const MongoStore = mongo(session);
 
@@ -41,6 +43,35 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true, useUni
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
+
+// Setting cors
+const options: cors.CorsOptions = {
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "X-Access-Token",
+    ],
+    credentials: true,
+    methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+    origin: FRONTEND,
+    preflightContinue: false,
+  };
+app.use(cors(options));
+
+// Setting redis
+const client = redis.createClient(RDS_PORT, RDS_HOST, {no_ready_check: true});
+client.auth(RDS_PWD, function (err) {
+    if(err) {throw err;};
+});
+client.on("error", function (err) {
+    console.log("Error " + err);
+});
+client.on("connect", function() {
+    console.log("Connected to Redis");
+});
+
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -117,3 +148,60 @@ app.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRe
 });
 
 export default app;
+
+// const methodOverride = require('method-override')
+// const cookieParser = require('cookie-parser')
+// app.use(cookieParser())
+// app.use(methodOverride())
+
+// require('./routes')(app)
+
+// //error handler
+// app.use(function(req, res, next) {
+//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404))
+// })
+
+// app.use(function (err, req, res, next) {
+//     err.statusCode = err.statusCode || 500;
+//     err.status = err.status || 'error';
+  
+//     res.status(err.statusCode).json({
+//       status: err.status,
+//       message: err.message
+//     })
+// })
+
+
+
+// redisFunctions=require('./functions/checkredis')
+
+// const express = require('express')
+// router = express.Router()
+
+// //error catching function
+// const catchAsync = fn => {
+//   return (req, res, next) => {
+//     fn(req, res, next).catch(next)
+//   }
+// }
+
+// module.exports = function(app){
+//   router.get('/', function(req,res){res.send("Hello World!")})
+
+//   app.use('/', router)
+// }
+
+
+// class AppError extends Error {
+//     constructor(message, statusCode) {
+//       super(message)
+  
+//       this.statusCode = statusCode
+//       this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error'
+//       this.isOperational = true
+      
+//       Error.captureStackTrace(this, this.constructor)
+//     }
+//   }
+
+//   module.exports=AppError
