@@ -34,7 +34,7 @@ public class ConsumerThread {
 
         // create consumer runnable
         logger.info("Creating the consumer thread");
-        Runnable myConsumerRunnable = new ConsumerThread1(latch,bootstrapServers,groupId,topic);
+        Runnable myConsumerRunnable = new ConsumerRunnable(latch,bootstrapServers,groupId,topic);
 
         //start the thread
         Thread myThread = new Thread(myConsumerRunnable);
@@ -43,9 +43,14 @@ public class ConsumerThread {
         //add a shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(
             () -> {logger.info("Caught shutdown hook");
-            // ((ConsumerThread1) myConsumerRunnable).shutdown()
+            ((ConsumerRunnable)myConsumerRunnable).shutdown();
+            try{
+                latch.wait();
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+            logger.info("Application has exited.");
         }
-
         ));
 
         try{
@@ -58,13 +63,12 @@ public class ConsumerThread {
 
     }
 
-    public class ConsumerThread1 implements Runnable{
+    public class ConsumerRunnable implements Runnable{
         private CountDownLatch latch;
         private KafkaConsumer<String,String> consumer;
-        private Logger logger = LoggerFactory.getLogger(ConsumerThread1.class.getName());
+        private Logger logger = LoggerFactory.getLogger(ConsumerRunnable.class.getName());
 
-        public ConsumerThread1(CountDownLatch latch, 
-        String bootstrapServers, String groupId, String topic){
+        public ConsumerRunnable(CountDownLatch latch, String bootstrapServers, String groupId, String topic){
             this.latch = latch;
 
             Properties properties = new Properties();
@@ -76,29 +80,26 @@ public class ConsumerThread {
 
             consumer = new KafkaConsumer<String,String>(properties);
 
-            //subscriber consumer to topics
             consumer.subscribe(Arrays.asList(topic));
         }
         public void run(){
-
             try{
-            //poll for new data
-            while(true){
-            ConsumerRecords<String,String> records = consumer.poll(Duration.ofMillis(100));
+                while(true){
+                ConsumerRecords<String,String> records = consumer.poll(Duration.ofMillis(100));
 
-            for(ConsumerRecord <String,String> record : records){
-                logger.info("Key:"+record.key()+'\n'+
-                "Value:"+record.value()+'\n'+
-                "Partition:"+record.partition()+'\n'+
-                "Offset:"+record.offset());
+                for(ConsumerRecord <String,String> record : records){
+                    logger.info("Key:"+record.key()+'\n'+
+                    "Value:"+record.value()+'\n'+
+                    "Partition:"+record.partition()+'\n'+
+                    "Offset:"+record.offset());
+                }
+            }}catch(WakeupException e){
+                logger.info("Received shutdown signal!");
+            }finally{
+                consumer.close();
+                //tell main code that we are done with the consumer
+                latch.countDown();
             }
-        }}catch(WakeupException e){
-            logger.info("Received shutdown signal!");
-        }finally{
-            consumer.close();
-            //tell main code that we are done with the consumer
-            latch.countDown();
-        }
         }
         public void shutdown(){
             consumer.wakeup();
