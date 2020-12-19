@@ -12,13 +12,13 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
-import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
 /**
  * Hello world!
  */
 public final class FavouriteColor {
+    private static int MAX_TIME = 1000;
     private FavouriteColor() {
     }
 
@@ -42,7 +42,8 @@ public final class FavouriteColor {
 
         KTable<String,Long> colorCount = userColor
         .groupBy((user,colour)->new KeyValue<>(colour, colour))
-        .count("color-count");
+        .count();
+        
 
         colorCount.toStream().to("favourite-color-output", Produced.with(Serdes.String(), Serdes.Long()));
 
