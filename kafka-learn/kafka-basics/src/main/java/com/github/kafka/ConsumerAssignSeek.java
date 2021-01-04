@@ -30,9 +30,10 @@ public class ConsumerAssignSeek {
         //create consumer
         KafkaConsumer<String,String> consumer = new KafkaConsumer<String,String>(properties);
         
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::close));
+
         //assign and seek are mostly used to replay data or fetch a specific message
         int numberOfMessagesToRead = 5;
-        boolean keepOnReading = true;
         int numberOfMessagesReadSoFar = 0;
         //assign
         TopicPartition partitionToReadFrom = new TopicPartition(topic,0);
@@ -53,7 +54,6 @@ public class ConsumerAssignSeek {
                 "Partition:"+record.partition()+'\n'+
                 "Offset:"+record.offset());
                 if(numberOfMessagesReadSoFar>=numberOfMessagesToRead){
-                    keepOnReading = false;
                     break;
                 }
             }

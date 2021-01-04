@@ -31,6 +31,7 @@ public class Consumer {
         //create consumer
         KafkaConsumer<String,String> consumer = new KafkaConsumer<String,String>(properties);
         
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::close));
         //subscriber consumer to topics
         consumer.subscribe(Arrays.asList(topic));
 

@@ -19,9 +19,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -91,7 +89,7 @@ public class ElasticSearchConsumer {
 
                 try{
                     String id = extractIDfromTweet(record.value());
-                    IndexRequest indexRequest = new IndexRequest("twitter","tweets",id).source(jsonString,XContentType.JSON);
+                    IndexRequest indexRequest = new IndexRequest("twitter").id(id).source(jsonString,XContentType.JSON);
                     bulkRequest.add(indexRequest);
                 }catch(NullPointerException e){
                     logger.warn("skipping bad data: " +record.value());
@@ -99,7 +97,7 @@ public class ElasticSearchConsumer {
                 
             }
             if(recordCount>0){
-                BulkResponse bulkResponse = client.bulk(bulkRequest,RequestOptions.DEFAULT);
+                client.bulk(bulkRequest,RequestOptions.DEFAULT);
                 logger.info("Committing offsets...");
                 consumer.commitSync();
                 logger.info("Offsets have been commited");
@@ -115,9 +113,8 @@ public class ElasticSearchConsumer {
         //client.close();
     }
 
-    private static JsonParser jsonParser = new JsonParser();
     private static String extractIDfromTweet(String tweetJson){
-        return jsonParser.parse(tweetJson).getAsJsonObject().get("id_str").getAsString();
+        return JsonParser.parseString(tweetJson).getAsJsonObject().get("id_str").getAsString();
     }
     
 }

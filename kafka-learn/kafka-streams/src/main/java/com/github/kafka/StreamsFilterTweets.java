@@ -45,10 +45,9 @@ public final class StreamsFilterTweets {
         kafkaStreams.start();
     }
 
-    private static JsonParser jsonParser = new JsonParser();
     private static Integer extractFollowersinTweet(String tweetJson){
         try{
-            return jsonParser.parse(tweetJson).getAsJsonObject().get("user").getAsJsonObject().get("followers_count").getAsInt();
+            return JsonParser.parseString(tweetJson).getAsJsonObject().get("user").getAsJsonObject().get("followers_count").getAsInt();
         } catch(NullPointerException e){
             return 0;
         }

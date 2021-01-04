@@ -34,11 +34,11 @@ public final class BankTransactionsProducer {
             System.out.println("Producing batch: " + i);
             try {
                 producer.send(newRandomTransaction("john"));
-                Thread.sleep(100);
+                Thread.sleep(1000);
                 producer.send(newRandomTransaction("stephane"));
-                Thread.sleep(100);
+                Thread.sleep(1000);
                 producer.send(newRandomTransaction("alice"));
-                Thread.sleep(100);
+                Thread.sleep(1000);
                 i += 1;
             } catch (InterruptedException e) {
                 break;
