@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class GreetingController {
-    @Data
-    public class Greeting {
-        private final long id;
-        private final String content;
-    }
+	@Data
+	public class Greeting {
+		private final long id;
+		private final String content;
+	}
 
 	private static final String template = "Hello, %s!";
 	private final AtomicLong counter = new AtomicLong();

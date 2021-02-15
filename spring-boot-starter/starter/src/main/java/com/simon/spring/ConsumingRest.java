@@ -9,46 +9,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.Data;
 
+@SpringBootApplication
+@EnableScheduling
 public class ConsumingRest {
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Quote {
-    private final String type;
-    private final Value value;
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Value {
-    private final Long id;
-    private final String quote;
-    }
-
+    private static User user;
     private static final Logger log = LoggerFactory.getLogger(ConsumingRest.class);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    // @Bean
-	// public RestTemplate restTemplate(RestTemplateBuilder builder) {
-	// 	return builder.build();
-	// }
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class User {
+        public final Integer id;
+        private final String name;
+        private final String username;
+        private final String email;
+        private final Address address;
+    }
 
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Address {
+        private final String street;
+        private final String suite;
+        private final String city;
+        private final String zipcode;
+    }
 
-	@Bean
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
+
+    @Bean
+    public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
+        return args -> {
+            user = restTemplate.getForObject("https://jsonplaceholder.typicode.com/users/1", User.class);
+        };
+    }
+
     @Scheduled(fixedRate = 5000)
-	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
-		return args -> {
-			Quote quote = restTemplate.getForObject(
-					"https://gturnquist-quoters.cfapps.io/api/random", Quote.class);
-			log.info(quote.toString()+dateFormat.format(new Date()));
-		};
-	}
+    public void logging() {
+        if (user != null) {
+            log.info(user.toString() + dateFormat.format(new Date()));
+        }
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(ConsumingRest.class, args);
