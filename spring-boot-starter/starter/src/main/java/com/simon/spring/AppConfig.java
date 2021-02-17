@@ -17,14 +17,11 @@ public class AppConfig {
     DataSourceProperties dataSourceProperties;
 
     @Bean
-    @ConfigurationProperties(prefix="spring.datasource")
+    @ConfigurationProperties(prefix = "spring.datasource")
     DataSource realDataSource() {
-        DataSource dataSource = DataSourceBuilder
-                .create(this.dataSourceProperties.getClassLoader())
-                .url(this.dataSourceProperties.getUrl())
-                .username(this.dataSourceProperties.getUsername())
-                .password(this.dataSourceProperties.getPassword())
-                .build();
+        DataSource dataSource = DataSourceBuilder.create(this.dataSourceProperties.getClassLoader())
+                .url(this.dataSourceProperties.getUrl()).username(this.dataSourceProperties.getUsername())
+                .password(this.dataSourceProperties.getPassword()).build();
         return dataSource;
     }
 
