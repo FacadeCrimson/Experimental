@@ -15,21 +15,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
-public class JDBC implements CommandLineRunner {
+public class JDBCApplication implements CommandLineRunner {
+  private static final Logger log = LoggerFactory.getLogger(JDBCApplication.class);
+
+  @Autowired
+  JdbcTemplate jdbcTemplate;
+
   @Data
   public class Customer {
     private final long id;
     private final String firstName, lastName;
   }
-
-  private static final Logger log = LoggerFactory.getLogger(JDBC.class);
-
-  public static void main(String args[]) {
-    SpringApplication.run(JDBC.class, args);
-  }
-
-  @Autowired
-  JdbcTemplate jdbcTemplate;
 
   @Override
   public void run(String... strings) throws Exception {
@@ -54,5 +50,9 @@ public class JDBC implements CommandLineRunner {
         .query("SELECT id, first_name, last_name FROM customers WHERE first_name = ?", new Object[] { "Josh" },
             (rs, rowNum) -> new Customer(rs.getLong("id"), rs.getString("first_name"), rs.getString("last_name")))
         .forEach(customer -> log.info(customer.toString()));
+  }
+
+  public static void main(String args[]) {
+    SpringApplication.run(JDBCApplication.class, args);
   }
 }

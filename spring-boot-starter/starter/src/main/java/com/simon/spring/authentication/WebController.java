@@ -1,4 +1,4 @@
-package com.simon.spring.formvalidation;
+package com.simon.spring.authentication;
 
 import javax.validation.Valid;
 
@@ -18,28 +18,28 @@ import javax.validation.constraints.Size;
 @Controller
 public class WebController implements WebMvcConfigurer {
 
-    @Data
-    public class PersonForm {
-        @NotNull
-        @Size(min=2, max=30)
-        private final String name;
-    
-        @NotNull
-        @Min(18)
-        private final Integer age;
-    }
+	@Data
+	public class PersonForm {
+		@NotNull
+		@Size(min = 2, max = 30)
+		private final String name;
+
+		@NotNull
+		@Min(18)
+		private final Integer age;
+	}
 
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/results").setViewName("results");
 	}
 
-	@GetMapping("/")
+	@GetMapping("/form")
 	public String showForm(PersonForm personForm) {
 		return "form";
 	}
 
-	@PostMapping("/")
+	@PostMapping("/form")
 	public String checkPersonInfo(@Valid PersonForm personForm, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {

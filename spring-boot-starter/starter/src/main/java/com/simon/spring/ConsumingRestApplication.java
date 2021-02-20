@@ -20,15 +20,15 @@ import lombok.Data;
 
 @SpringBootApplication
 @EnableScheduling
-public class ConsumingRest {
+public class ConsumingRestApplication {
     private static User user;
-    private static final Logger log = LoggerFactory.getLogger(ConsumingRest.class);
+    private static final Logger log = LoggerFactory.getLogger(ConsumingRestApplication.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class User {
-        public final Integer id;
+        private final Integer id;
         private final String name;
         private final String username;
         private final String email;
@@ -64,6 +64,6 @@ public class ConsumingRest {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(ConsumingRest.class, args);
+        SpringApplication.run(ConsumingRestApplication.class, args);
     }
 }
