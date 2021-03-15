@@ -1,0 +1,33 @@
+.out{
+    margin:auto;
+    width:1000px;
+    display:flex;
+}
+
+.block{
+    width:50%;
+    display:inline-block;
+    text-align:center;
+}
+
+.title{
+    font-size:50px;
+    margin:20px;
+}
+
+.name{
+    margin:20px auto;
+    font-size:30px;
+    padding:30px;
+    border-radius: 10px;
+    width:150px;
+    height:50px;
+    background-color:#308080;
+    text-align:center;
+}
+
+p{
+    color:red;
+    text-align: center;
+    font-size:30px;
+}
