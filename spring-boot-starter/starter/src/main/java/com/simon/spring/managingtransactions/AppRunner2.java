@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-class AppRunner implements CommandLineRunner {
+class AppRunner2 implements CommandLineRunner {
 
-  private final static Logger logger = LoggerFactory.getLogger(AppRunner.class);
+  private final static Logger logger = LoggerFactory.getLogger(AppRunner2.class);
 
   private final BookingService bookingService;
 
-  public AppRunner(BookingService bookingService) {
+  public AppRunner2(BookingService bookingService) {
     this.bookingService = bookingService;
   }
 

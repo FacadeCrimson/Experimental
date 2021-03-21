@@ -1,4 +1,4 @@
-package com.simon.spring;
+package com.simon.spring.JDBC;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.simon.spring;
+package com.simon.spring.consumingrest;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -21,9 +21,11 @@ import lombok.Data;
 @SpringBootApplication
 @EnableScheduling
 public class ConsumingRestApplication {
-    private static User user;
     private static final Logger log = LoggerFactory.getLogger(ConsumingRestApplication.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,18 +51,10 @@ public class ConsumingRestApplication {
         return builder.build();
     }
 
-    @Bean
-    public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
-        return args -> {
-            user = restTemplate.getForObject("https://jsonplaceholder.typicode.com/users/1", User.class);
-        };
-    }
-
     @Scheduled(fixedRate = 5000)
-    public void logging() {
-        if (user != null) {
-            log.info(user.toString() + dateFormat.format(new Date()));
-        }
+    public void logging() throws Exception {
+        User user = restTemplate.getForObject("https://jsonplaceholder.typicode.com/users/1", User.class);
+        log.info(user.toString() + dateFormat.format(new Date()));
     }
 
     public static void main(String[] args) {

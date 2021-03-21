@@ -1,4 +1,4 @@
-package com.simon.spring;
+package com.simon.spring.authentication;
 
 import lombok.Data;
 
@@ -17,6 +17,11 @@ public class GreetingController {
 	public class Greeting {
 		private final long id;
 		private final String content;
+	}
+
+	@RequestMapping("/")
+	public String root() {
+		return "Welcome!";
 	}
 
 	@RequestMapping("/greeting")
